@@ -1,101 +1,105 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
+import { Inter, Outfit } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
+const outfit = Outfit({ subsets: ["latin"] });
+
+const CAMERAS = [
+  "KM 12",
+  "KM 20",
+  "KM 34",
+  "KM 47",
+  "KM 58",
+  "KM 65",
+  "KM 80",
+  "KM 81",
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [cameraUrls, setCameraUrls] = useState<string[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  function loadCameras() {
+    var date = new Date();
+    date.setMinutes(date.getMinutes() - 2);
+
+    var currentMonth = ("0" + (date.getMonth() + 1)).slice(-2);
+    var currentSeconds = ("0" + date.getSeconds()).slice(-2);
+    var currentMinutes = ("0" + date.getMinutes()).slice(-2);
+    var currentHours = ("0" + date.getHours()).slice(-2);
+    var currentDate = ("0" + date.getDate()).slice(-2);
+
+    let cameraUrls: string[] = [];
+    CAMERAS.forEach((cameraName) => {
+      var format =
+        cameraName.replace(" ", "%20") +
+        "_" +
+        date.getFullYear().toString().substr(2, 2) +
+        "" +
+        currentMonth +
+        "" +
+        currentDate +
+        "" +
+        currentHours +
+        "" +
+        currentMinutes +
+        "" +
+        currentSeconds +
+        "00.jpg";
+      var url =
+        `https://camerastamoios.vwi.com.br/${cameraName.replace(" ", "")}/` +
+        format;
+
+      cameraUrls.push(url);
+    });
+
+    setCameraUrls(cameraUrls);
+  }
+
+  useEffect(() => {
+    loadCameras();
+
+    const interval = setInterval(function () {
+      loadCameras();
+    }, 3000);
+
+    () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <main className={`min-h-screen bg-gray-100 p-8 ${inter.className}`}>
+      <div className="max-w-7xl mx-auto">
+        <h1 className={`text-3xl font-bold text-gray-800 mb-8 text-center ${outfit.className}`}>
+          Câmeras Tamoios
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {cameraUrls.map((cUrl, index) => (
+            <div key={CAMERAS[index]} className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className={`p-3 bg-gray-800 text-white flex items-center justify-between ${outfit.className}`}>
+                <span className="font-medium">{CAMERAS[index]}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                </svg>
+              </div>
+              <div className="relative">
+                <img 
+                  className="w-full h-[240px] object-cover"
+                  src={cUrl}
+                  alt={`Camera ${CAMERAS[index]}`}
+                />
+                <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+            </div>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }
